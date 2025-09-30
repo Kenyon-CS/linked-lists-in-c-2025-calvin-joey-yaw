@@ -1,4 +1,8 @@
 #include <iostream>
+#include <stdexcept>
+#include <utility>
+using namespace std;
+
 
 template <typename T>
 class node {
@@ -79,6 +83,57 @@ class LinkedList {
             delete temp;
         }
     }
+    T lfirst() {
+        if (head == nullptr) {
+            throw std::runtime_error("lfirst() called on empty list");
+        }
+        node<T>* temp = head;
+        head = head->next;
+        T value = std::move(temp->data);
+        delete temp;
+        return value;
+    }
+
+    T last() {
+        if (head == nullptr) {
+            throw std::runtime_error("last() called on empty list");
+        }
+
+        if (head->next == nullptr) {
+            T value = std::move(head->data);
+            delete head;
+            head = nullptr;
+            return value;
+        }
+
+        node<T>* prev = nullptr;
+        node<T>* cur  = head;
+        while (cur->next != nullptr) {
+            prev = cur;
+            cur  = cur->next;
+        }
+        prev->next = nullptr;
+        T value = std::move(cur->data);
+        delete cur;
+        return value;
+    }
+    void addOrder(const T& value) {
+        node<T>* newNode = new node<T>(value);
+
+        if (head == nullptr || !(head->data < value)) {
+            newNode->next = head;
+            head = newNode;
+            return;
+        }
+
+        node<T>* cur = head;
+        while (cur->next != nullptr && cur->next->data < value) {
+            cur = cur->next;
+        }
+
+        newNode->next = cur->next;
+        cur->next = newNode;
+    }
 };
 
 int main() {
@@ -93,7 +148,20 @@ int main() {
     list.print();
 
     list.remove(2);
-    std::cout << "After removing 2: ";
+    std::cout << "After remove: ";
+    list.print();
+
+    list.lfirst();
+    std::cout << "After lfirst: ";
+    list.print();
+
+    list.last();
+    std::cout << "After last: ";
+    list.print();
+
+    list.addOrder(10);
+    std::cout << "After addOrder: ";
+
     list.print();
 
     return 0;
